@@ -1,131 +1,134 @@
 import React, { useState } from 'react';
-import { Calculator, CalendarDays, Clock, DollarSign } from 'lucide-react';
+import { FaCalendarAlt, FaMoneyBillWave, FaPlusCircle, FaStopwatch } from 'react-icons/fa';
 
-export default function App() {
-  const [oldMonthlyPrice, setOldMonthlyPrice] = useState('');
-  const [newMonthlyPrice, setNewMonthlyPrice] = useState('');
-  const [remainingDays, setRemainingDays] = useState('');
-  const [months, setMonths] = useState(1);
+const YouTubePriceCalculator = () => {
+  const [oldPrice, setOldPrice] = useState('');
+  const [newPrice, setNewPrice] = useState('');
+  const [remainingMonths, setRemainingMonths] = useState('');
+  const [oldPackageMonths, setOldPackageMonths] = useState('12');
   const [result, setResult] = useState(null);
 
   const handleCalculate = () => {
-    const oldMonthly = parseFloat(oldMonthlyPrice);
-    const newMonthly = parseFloat(newMonthlyPrice);
-    const daysLeft = parseInt(remainingDays);
+    const oldPriceNum = parseFloat(oldPrice);
+    const newPriceNum = parseFloat(newPrice);
+    const monthsLeft = parseFloat(remainingMonths);
+    const oldMonths = parseFloat(oldPackageMonths);
 
-    if (isNaN(oldMonthly) || isNaN(newMonthly) || isNaN(daysLeft)) {
-      setResult(null);
+    if (
+      isNaN(oldPriceNum) ||
+      isNaN(newPriceNum) ||
+      isNaN(monthsLeft) ||
+      isNaN(oldMonths) ||
+      oldMonths <= 0
+    ) {
+      setResult('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง');
       return;
     }
 
-    const oldPerDay = oldMonthly / 30;
-    const newPerDay = newMonthly / 30;
-    const oldRemaining = oldPerDay * daysLeft;
-    const newRemaining = newPerDay * daysLeft;
-    const difference = newRemaining - oldRemaining;
+    const oldMonthlyRate = oldPriceNum / oldMonths;
+    const diffPerMonth = newPriceNum - oldMonthlyRate;
+    const totalDiff = diffPerMonth * monthsLeft;
 
-    setResult({ oldRemaining, newRemaining, difference });
+    setResult(`ส่วนต่างที่ต้องจ่ายเพิ่ม: ${totalDiff.toFixed(2)} บาท`);
   };
 
   const handleReset = () => {
-    setOldMonthlyPrice('');
-    setNewMonthlyPrice('');
-    setRemainingDays('');
-    setMonths(1);
+    setOldPrice('');
+    setNewPrice('');
+    setRemainingMonths('');
+    setOldPackageMonths('12');
     setResult(null);
   };
 
   return (
-    <div className="min-h-screen bg-pink-50 py-8 px-4">
-      <div className="max-w-xl mx-auto bg-white rounded-2xl shadow p-6">
-        <h1 className="text-2xl font-bold flex items-center gap-2 mb-2">
-          <Calculator className="text-red-500" /> คำนวณส่วนต่าง YouTube
-        </h1>
-        <p className="text-sm text-gray-600 mb-6">
-          ระบบคำนวณส่วนต่างที่ต้องจ่ายเพิ่มเมื่อเปลี่ยนแพ็กเกจ
-        </p>
+    <div className="p-8 bg-white rounded-lg shadow-md max-w-md w-full mx-auto">
+      <h1 className="text-2xl font-bold text-center text-red-600 mb-1">คำนวณส่วนต่างราคา YouTube Premium</h1>
+      <p className="text-center text-gray-600 text-sm mb-6">by.ร้านบ้านยูทูป @106gpmvh</p>
 
-        <div className="grid gap-4">
-          <label className="block text-sm font-medium">
-            <CalendarDays className="inline mr-2" /> จำนวนเดือน (แพ็กเกจเดิม)
-            <select
-              className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm"
-              value={months}
-              onChange={(e) => setMonths(Number(e.target.value))}
-            >
-              {[1, 2, 3, 6, 12].map((m) => (
-                <option key={m} value={m}>
-                  {m} เดือน
-                </option>
-              ))}
-            </select>
+      <div className="space-y-4">
+        <div>
+          <label className="block font-medium text-sm text-gray-700">
+            <FaMoneyBillWave className="inline mr-1" />
+            ราคาที่ซื้อไว้ (บาท)
           </label>
-
-          <label className="block text-sm font-medium">
-            <DollarSign className="inline mr-2" /> ราคา (แพ็กเกจเดิม)
-            <input
-              type="number"
-              className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm"
-              placeholder="ใส่ราคาเป็นบาท"
-              value={oldMonthlyPrice}
-              onChange={(e) => setOldMonthlyPrice(e.target.value)}
-            />
-          </label>
-
-          <label className="block text-sm font-medium">
-            <Clock className="inline mr-2" /> เหลือวันใช้งาน
-            <input
-              type="number"
-              className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm"
-              placeholder="ใส่จำนวนวัน"
-              value={remainingDays}
-              onChange={(e) => setRemainingDays(e.target.value)}
-            />
-          </label>
-
-          <label className="block text-sm font-medium">
-            <DollarSign className="inline mr-2" /> เพิ่มเป็นเดือนละ (แพ็กเกจใหม่)
-            <input
-              type="number"
-              className="mt-1 block w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm"
-              placeholder="ใส่ราคาเดือนละ"
-              value={newMonthlyPrice}
-              onChange={(e) => setNewMonthlyPrice(e.target.value)}
-            />
-          </label>
-
-          <div className="flex gap-2 mt-4">
-            <button
-              onClick={handleCalculate}
-              className="flex-1 bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition"
-            >
-              <Calculator className="inline mr-2" /> คำนวณ
-            </button>
-            <button
-              onClick={handleReset}
-              className="bg-white border border-gray-300 py-2 px-4 rounded-md hover:bg-gray-100"
-            >
-              รีเซ็ต
-            </button>
-          </div>
+          <input
+            type="number"
+            value={oldPrice}
+            onChange={(e) => setOldPrice(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+            placeholder="ใส่ราคาบาท"
+          />
         </div>
-      </div>
 
-      <div className="max-w-xl mx-auto mt-6 bg-white rounded-2xl shadow p-6">
-        <h2 className="font-bold text-lg mb-4">ผลการคำนวณ</h2>
-        {result ? (
-          <ul className="text-sm space-y-2">
-            <li>มูลค่าสิทธิเดิมที่เหลือ: {result.oldRemaining.toFixed(2)} บาท</li>
-            <li>มูลค่าสิทธิใหม่ที่ต้องจ่าย: {result.newRemaining.toFixed(2)} บาท</li>
-            <li>
-              ส่วนต่างที่ต้องจ่ายเพิ่ม:{' '}
-              <span className="font-bold text-red-500">{result.difference.toFixed(2)} บาท</span>
-            </li>
-          </ul>
-        ) : (
-          <p className="text-gray-400 text-sm text-center">ยังไม่มีข้อมูล</p>
+        <div>
+          <label className="block font-medium text-sm text-gray-700">
+            💳 ราคาใหม่ (บาท)
+          </label>
+          <input
+            type="number"
+            value={newPrice}
+            onChange={(e) => setNewPrice(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+            placeholder="ใส่ราคาบาท"
+          />
+        </div>
+
+        <div>
+          <label className="block font-medium text-sm text-gray-700">
+            <FaCalendarAlt className="inline mr-1" />
+            แพ็กเกจเดิมที่เคยซื้อ
+          </label>
+          <select
+            value={oldPackageMonths}
+            onChange={(e) => setOldPackageMonths(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+          >
+            <option value="1">1 เดือน</option>
+            <option value="2">2 เดือน</option>
+            <option value="3">3 เดือน</option>
+            <option value="6">6 เดือน</option>
+            <option value="9">9 เดือน</option>
+            <option value="12">12 เดือน</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block font-medium text-sm text-gray-700">
+            <FaStopwatch className="inline mr-1" />
+            เหลือเดือนใช้งาน
+          </label>
+          <input
+            type="number"
+            value={remainingMonths}
+            onChange={(e) => setRemainingMonths(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+            placeholder="เช่น 4"
+          />
+        </div>
+
+        <div className="flex justify-between mt-6">
+          <button
+            onClick={handleCalculate}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+          >
+            คำนวณ
+          </button>
+          <button
+            onClick={handleReset}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded"
+          >
+            ล้างค่า
+          </button>
+        </div>
+
+        {result && (
+          <div className="mt-4 text-green-600 font-semibold text-center">
+            💡 {result}
+          </div>
         )}
       </div>
     </div>
   );
-}
+};
+
+export default YouTubePriceCalculator;
